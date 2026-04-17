@@ -1,0 +1,29 @@
+name: Security
+
+on:
+  schedule:
+    - cron: '30 4 * * *'
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    strategy:
+      fail-fast: false
+      matrix:
+        image:
+          - ghcr.io/toshy/docker-backup-warden:latest
+    steps:
+      - name: Scan for vulnerabilities
+        uses: crazy-max/ghaction-container-scan@v4
+        with:
+          image: ${{ matrix.image }}
+          severity_threshold: CRITICAL
+          annotations: true
+        env:
+          TRIVY_TIMEOUT: 5m
+          TRIVY_IGNORE_UNFIXED: true
+          TRIVY_DISABLE_VEX_NOTICE: true

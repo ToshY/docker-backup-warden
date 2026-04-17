@@ -1,0 +1,54 @@
+services:
+  backup-warden:
+    build:
+      context: .
+      target: prod
+    depends_on:
+      rustfs:
+        condition: service_healthy
+    environment:
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-rustfsadmin}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-rustfsadmin}
+      AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-us-east-1}
+      AWS_ENDPOINT_URL_S3: ${AWS_ENDPOINT_URL_S3:-http://rustfs:9000}
+      AWS_CONFIG_FILE: ${AWS_CONFIG_FILE:-/dev/null}
+
+  rustfs:
+    image: rustfs/rustfs:${RUSTFS_VERSION:-1.0.0-alpha.94}
+    environment:
+      RUSTFS_VOLUMES: ${RUSTFS_VOLUMES:-/data}
+      RUSTFS_ADDRESS: ${RUSTFS_ADDRESS:-0.0.0.0:9000}
+      RUSTFS_ACCESS_KEY: ${AWS_ACCESS_KEY_ID:-rustfsadmin}
+      RUSTFS_SECRET_KEY: ${AWS_SECRET_ACCESS_KEY:-rustfsadmin}
+      RUSTFS_CONSOLE_ENABLE: ${RUSTFS_CONSOLE_ENABLE:-true}
+      RUSTFS_CORS_ALLOWED_ORIGINS: ${RUSTFS_CORS_ALLOWED_ORIGINS:-'*'}
+      RUSTFS_CONSOLE_CORS_ALLOWED_ORIGINS: ${RUSTFS_CONSOLE_CORS_ALLOWED_ORIGINS:-'*'}
+      RUSTFS_OBS_LOGGER_LEVEL: ${RUSTFS_OBS_LOGGER_LEVEL:-info}
+    ports:
+      - "9000:9000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "sh", "-c",
+          "curl -f http://127.0.0.1:9000/health && curl -f http://127.0.0.1:9001/rustfs/console/health"
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - rustfs_data:${RUSTFS_VOLUMES:-/data}
+
+  mc:
+    image: minio/mc:${MC_VERSION:-RELEASE.2025-08-13T08-35-41Z}
+    depends_on:
+      rustfs:
+        condition: service_healthy
+    environment:
+      MC_HOST_rustfs: http://${AWS_ACCESS_KEY_ID:-rustfsadmin}:${AWS_SECRET_ACCESS_KEY:-rustfsadmin}@rustfs:9000
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["sleep infinity"]
+
+volumes:
+  rustfs_data:

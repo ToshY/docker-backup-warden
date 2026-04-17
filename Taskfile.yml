@@ -1,0 +1,47 @@
+version: '3'
+tasks:
+  default:
+    cmds:
+      - task --list
+
+  build:
+    desc: Build the prod Docker image locally
+    cmds:
+      - docker compose build backup-warden
+
+  # Development tools (Python-code lint/format; run by pre-commit too)
+  contribute:
+    desc: Contribute
+    cmds:
+      - task: shellcheck
+
+  shellcheck:
+    desc: Shellcheck all shell scripts
+    cmds:
+      - find . -name '*.sh' -exec docker run --rm -v $(pwd):/mnt koalaman/shellcheck:v0.11.0 {} +
+
+  # Rustfs integration
+  rustfs:up:
+    desc: Start local rustfs container
+    cmds:
+      - docker compose up -d rustfs
+
+  rustfs:down:
+    desc: Stop local rustfs container
+    cmds:
+      - docker compose stop rustfs
+
+
+  test:
+    desc: Rotation smoke tests — s3 (rustfs) and local (bind-mount), five variants each
+    cmds:
+      - bash tests/test_rotation_s3.sh
+      - bash tests/test_rotation_s3_multi_tier.sh
+      - bash tests/test_rotation_s3_multi_tier_dense.sh
+      - bash tests/test_rotation_s3_custom_filenames.sh
+      - bash tests/test_rotation_s3_config.sh
+      - bash tests/test_rotation_local.sh
+      - bash tests/test_rotation_local_multi_tier.sh
+      - bash tests/test_rotation_local_multi_tier_dense.sh
+      - bash tests/test_rotation_local_custom_filenames.sh
+      - bash tests/test_rotation_local_config.sh
