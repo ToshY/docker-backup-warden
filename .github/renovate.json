@@ -1,0 +1,9 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>ToshY/.github//renovate/default",
+    ":rebaseStalePrs"
+  ],
+  "minimumReleaseAge": "1 day",
+  "schedule": ["every weekend"]
+}
