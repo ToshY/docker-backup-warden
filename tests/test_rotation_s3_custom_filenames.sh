@@ -43,6 +43,7 @@ docker compose run --rm backup-warden \
   --daily=3 --no-recency-check --delete
 echo "==> [mysql] verifying survivors"
 ACTUAL=$(mc_cmd "mc ls --recursive rustfs/$BUCKET1" \
+  | awk '{print $NF}' \
   | grep -Eo '[0-9]{8}-[0-9]{6}' | sort -u)
 EXPECTED=$(printf '%s\n' "${EXPECTED1[@]}" | sort -u)
 if [ "$ACTUAL" != "$EXPECTED" ]; then
@@ -79,6 +80,7 @@ docker compose run --rm backup-warden \
   --daily=3 --no-recency-check --delete
 echo "==> [media] verifying survivors"
 ACTUAL=$(mc_cmd "mc ls --recursive rustfs/$BUCKET2" \
+  | awk '{print $NF}' \
   | grep -Eo '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2}' | sort -u)
 EXPECTED=$(printf '%s\n' "${EXPECTED2[@]}" | sort -u)
 if [ "$ACTUAL" != "$EXPECTED" ]; then

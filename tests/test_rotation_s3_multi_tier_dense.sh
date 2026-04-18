@@ -97,6 +97,7 @@ docker compose run --rm backup-warden \
 
 echo "==> comparing survivors to expected set"
 ACTUAL=$(mc_cmd "mc ls --recursive rustfs/$BUCKET" \
+  | awk '{print $NF}' \
   | grep -Eo '[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}-[0-9]{2}-[0-9]{2}' \
   | sort -u)
 EXPECTED=$(printf '%s\n' "${EXPECTED_SURVIVORS[@]}" | sort -u)
