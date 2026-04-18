@@ -5,3 +5,11 @@ repos:
     hooks:
       - id: shellcheck
         name: shellcheck
+  - repo: local
+    hooks:
+      - id: test
+        name: test
+        entry: task test
+        language: system
+        types: [shell]
+        pass_filenames: false
