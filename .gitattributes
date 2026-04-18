@@ -1,0 +1,10 @@
+/.devcontainer/ export-ignore
+/.github/ export-ignore
+/tests/ export-ignore
+/.gitattributes export-ignore
+/.gitignore export-ignore
+/.pre-commit-config.yaml export-ignore
+/.editorconfig export-ignore
+/compose.yaml export-ignore
+/rector.php export-ignore
+/AGENTS.md export-ignore
