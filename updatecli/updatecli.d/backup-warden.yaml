@@ -13,6 +13,7 @@ targets:
     name: Update backup-warden version in Dockerfile
     kind: file
     sourceid: latestVersion
+    scmid: github
     spec:
       file: Dockerfile
       matchpattern: "ARG BACKUP_WARDEN_VERSION=([0-9]+\\.[0-9]+\\.[0-9]+)"
