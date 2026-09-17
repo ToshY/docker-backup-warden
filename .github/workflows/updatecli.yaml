@@ -14,19 +14,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
       - name: Install Updatecli
-        uses: updatecli/updatecli-action@v3
-
-      - name: Run Updatecli in Dry Run mode
-        run: updatecli diff --config updatecli/updatecli.d --values updatecli/values.yaml
-        env:
-          UPDATECLI_GITHUB_USERNAME: ${{ github.actor }}
-          UPDATECLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        uses: updatecli/updatecli-action@v3.7.0
 
       - name: Run Updatecli
-        run: updatecli apply --config updatecli/updatecli.d --values updatecli/values.yaml
+        run: updatecli pipeline apply --config updatecli/updatecli.d --values updatecli/values.yaml
         env:
           UPDATECLI_GITHUB_USERNAME: ${{ github.actor }}
           UPDATECLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
