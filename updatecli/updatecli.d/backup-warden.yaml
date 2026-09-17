@@ -1,0 +1,40 @@
+name: Update backup-warden version
+pipelineid: backup-warden
+
+sources:
+  latestVersion:
+    name: Latest backup-warden version from PyPI
+    kind: pypi
+    spec:
+      name: backup-warden
+
+targets:
+  backupWardenVersion:
+    name: Update backup-warden version in Dockerfile
+    kind: file
+    sourceid: latestVersion
+    spec:
+      file: Dockerfile
+      matchpattern: "ARG BACKUP_WARDEN_VERSION=([0-9]+\\.[0-9]+\\.[0-9]+)"
+      replacepattern: 'ARG BACKUP_WARDEN_VERSION={{ source "latestVersion" }}'
+
+scms:
+  github:
+    kind: github
+    spec:
+      owner: ToshY
+      repository: docker-backup-warden
+      branch: main
+      user: '{{ .github.user }}'
+      username: '{{ .github.username }}'
+      email: '{{ .github.email }}'
+      token: '{{ requiredEnv .github.token }}'
+
+actions:
+  default:
+    kind: github/pullrequest
+    scmid: github
+    title: 'chore: update backup-warden to {{ source "latestVersion" }}'
+    spec:
+      labels:
+        - dependencies

@@ -1,7 +1,5 @@
-# renovate: source=docker name=python versioning=docker
 ARG PYTHON_IMAGE_VERSION=3.13
 
-# renovate: source=pypi name=backup-warden
 ARG BACKUP_WARDEN_VERSION=1.0.15
 
 FROM python:${PYTHON_IMAGE_VERSION}-slim-trixie AS builder
