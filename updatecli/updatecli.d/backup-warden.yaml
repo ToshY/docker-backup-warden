@@ -38,3 +38,4 @@ actions:
     spec:
       labels:
         - dependencies
+      publish: true
