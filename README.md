@@ -108,7 +108,7 @@ Concretely, that means:
 - **~60% smaller image** (~174 MB less to pull on every CI run / cold node), because only `backup-warden` + its Python dependencies ship in the runtime stage — no `apt`, no `pip`, no shell, no build toolchain left over from the builder.
 - **Smaller attack surface.** No shell means no `docker exec <container> sh`, no in-container shell injection, and a pile of common CVE categories (shell-based RCE chains, `apt`/`dpkg` advisories, coreutils issues) simply don't apply.
 - **Runs as non-root by default** (`uid 65532`), so bind-mounts need to be readable by that uid — see the local-rotation example below.
-- **Reproducible & pinned.** Python minor, `backup-warden` version, and base digest are all pinned in the `Dockerfile` and kept current by Renovate.
+- **Reproducible & pinned.** Python minor, `backup-warden` version, and base digest are all pinned in the `Dockerfile` and kept current by Updatecli.
 
 ## 🛠️ Contribute
 

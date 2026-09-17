@@ -73,10 +73,13 @@ Use **Task** (`Taskfile.yml`) — don't invent new commands:
 ## Integration points & dependency pinning
 
 - **rustfs** is pinned in `compose.yaml` (`rustfs/rustfs:1.0.0-alpha.94`). Healthcheck hits `:9000/health` and `:9001/rustfs/console/health`; the `backup-warden` compose service uses `depends_on: condition: service_healthy`, so don't remove the healthcheck.
-- **mc** (minio/mc) is pinned in `compose.yaml` and used only by the shell test. `MC_HOST_rustfs` env var is the contract between the test script and the `mc` service — don't switch back to `mc alias set`.
-- **Two Renovate regex-manager comments in `Dockerfile` must stay intact**:
-  - `# renovate: source=docker name=python versioning=docker` above `ARG PYTHON_IMAGE_VERSION` (uses `versioning=docker` so partial `3.13` tags are accepted; default `semver` would silently skip).
-  - `# renovate: source=pypi name=backup-warden` above `ARG BACKUP_WARDEN_VERSION`.
+- **mc** (pgsty/mc) is pinned in `compose.yaml` and used only by the shell test. `MC_HOST_rustfs` env var is the contract between the test script and the `mc` service — don't switch back to `mc alias set`.
+- **Updatecli** lives under `updatecli/` with a manifest per dependency:
+  - `updatecli/updatecli.d/backup-warden.yaml` — PyPI source, matches `ARG BACKUP_WARDEN_VERSION`
+  - `updatecli/updatecli.d/python-slim-trixie.yaml` — Docker source for `python`, regex filter `^3\.\d+-slim-trixie$`
+  - `updatecli/values.yaml` — SCM credentials (user, email, username, token ref) shared by all manifests
+  - `.github/workflows/updatecli.yaml` — runs `updatecli diff` then `updatecli apply` every Saturday 06:00 UTC (also `workflow_dispatch`-able). The workflow uses `--values updatecli/values.yaml` so manifests stay generic. `UPDATECLI_GITHUB_USERNAME` is set to `${{ github.actor }}`.
+  - To add a new managed dependency, create a manifest under `updatecli/updatecli.d/` following the existing pattern; the workflow picks it up automatically.
 - When bumping `PYTHON_IMAGE_VERSION`, no other Dockerfile edit is required — the prod-stage `COPY --from=builder /install/lib/python3.*/site-packages` line globs the minor out of the path. Do verify that `gcr.io/distroless/python3-debian13` ships the same minor as the builder base (`docker run --rm --entrypoint=/busybox/sh gcr.io/distroless/python3-debian13:debug -c 'python3 --version'`); a mismatch still breaks non-`abi3` C extensions at runtime.
 - No Python dev dependencies are tracked in the repo (no `requirements.dev.txt`, no `pyproject.toml`). Pre-commit only wires shellcheck. If you reach for `pytest`/`boto3`, reconsider; the shell script + mc has been deliberately chosen over a Python test harness.
 - Release image is published to `ghcr.io/toshy/docker-backup-warden` and smoke-tested with `docker run --rm <img>:prod --help` — new prod-stage changes must keep `--help` working. Current prod image is ~117 MB uncompressed; regressions past ~130 MB usually mean an unintended bytecode/cache duplication or a base-image bump.

@@ -1,0 +1,43 @@
+name: Update Python slim-trixie version
+pipelineid: python-slim-trixie
+
+sources:
+  latestVersion:
+    name: Latest 3.x slim-trixie tag from Docker Hub
+    kind: docker
+    spec:
+      image: python
+      versionfilter:
+        kind: regex
+        pattern: '^3\.\d+-slim-trixie$'
+
+targets:
+  pythonImageVersion:
+    name: Update Python image version in Dockerfile
+    kind: file
+    sourceid: latestVersion
+    spec:
+      file: Dockerfile
+      matchpattern: "ARG PYTHON_IMAGE_VERSION=([0-9]+\\.[0-9]+)"
+      replacepattern: 'ARG PYTHON_IMAGE_VERSION={{ source "latestVersion" | replace "-slim-trixie" "" }}'
+
+scms:
+  github:
+    kind: github
+    spec:
+      owner: ToshY
+      repository: docker-backup-warden
+      branch: main
+      user: '{{ .github.user }}'
+      username: '{{ .github.username }}'
+      email: '{{ .github.email }}'
+      token: '{{ requiredEnv .github.token }}'
+
+actions:
+  default:
+    kind: github/pullrequest
+    scmid: github
+    title: 'chore: update python image to {{ source "latestVersion" }}'
+    spec:
+      labels:
+        - dependencies
