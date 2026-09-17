@@ -73,7 +73,7 @@ Use **Task** (`Taskfile.yml`) — don't invent new commands:
 ## Integration points & dependency pinning
 
 - **rustfs** is pinned in `compose.yaml` (`rustfs/rustfs:1.0.0-alpha.94`). Healthcheck hits `:9000/health` and `:9001/rustfs/console/health`; the `backup-warden` compose service uses `depends_on: condition: service_healthy`, so don't remove the healthcheck.
-- **mc** (minio/mc) is pinned in `compose.yaml` and used only by the shell test. `MC_HOST_rustfs` env var is the contract between the test script and the `mc` service — don't switch back to `mc alias set`.
+- **mc** (pgsty/mc) is pinned in `compose.yaml` and used only by the shell test. `MC_HOST_rustfs` env var is the contract between the test script and the `mc` service — don't switch back to `mc alias set`.
 - **Updatecli** lives under `updatecli/` with a manifest per dependency:
   - `updatecli/updatecli.d/backup-warden.yaml` — PyPI source, matches `ARG BACKUP_WARDEN_VERSION`
   - `updatecli/updatecli.d/python-slim-trixie.yaml` — Docker source for `python`, regex filter `^3\.\d+-slim-trixie$`
